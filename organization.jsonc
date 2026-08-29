@@ -1,0 +1,35 @@
+{
+    // The official name of the organization as registered
+    // with the relevant business registration authority.
+    // This is the display name used across all reports.
+    "name": "Acme Corporation",
+
+    // The name of the Chief Executive Officer (CEO).
+    // This individual is ultimately responsible for the
+    // strategic direction and day-to-day management of
+    // the organization. Update this whenever leadership
+    // changes occur, as it may be picked by downstream
+    // systems for approvals and sign-offs.
+    "ceo": "Jane Doe",
+
+    // The list of departments within the organization.
+    // Each entry represents a distinct functional unit.
+    // The order here is not significant, but an entry
+    // must be unique - duplicate department names will
+    // be rejected by the validation pipeline. At least
+    // one department is required for a valid record.
+    "departments": [
+        // Handles customer inquiries, account management
+        // and support escalations around the clock.
+        "Customer Success",
+
+        // Owns the product roadmap, feature design and
+        // quality assurance. This team ships releases
+        // on a two-week cadence.
+        "Engineering",
+
+        // Responsible for payroll, hiring, onboarding
+        // and all people-related operations.
+        "Human Resources"
+    ]
+}
