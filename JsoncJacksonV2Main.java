@@ -4,6 +4,8 @@
 //PREVIEW
 //FILES organization.jsonc
 
+package jackson.v2;
+
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.core.json.JsonReadFeature;
 

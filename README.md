@@ -6,7 +6,7 @@ It is mainly to get conformable with jbang.
 
 ## Snippets
 
-1. Deserialize jsonc (JSON with comments) using jackson3 databind: [here](JsoncMain.java)
+1. Deserialize jsonc (JSON with comments) using jackson databind: [v3](JsoncJacksonV3Main.java) & [v2](JsoncJacksonV2Main.java)
 
 ## References
 
