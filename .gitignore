@@ -5,3 +5,4 @@ out/
 
 ## Miscs
 *.bak
+!mise.toml.bak
