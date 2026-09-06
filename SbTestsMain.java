@@ -1,6 +1,6 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 25
-//DEPS org.springframework.boot:spring-boot-starter-web:4.1.1
+//SOURCES SbAppMain.java
 //DEPS org.springframework.boot:spring-boot-starter-test:4.1.1
 //DEPS org.junit.jupiter:junit-jupiter:6.0.3
 //DEPS org.junit.platform:junit-platform-launcher:6.0.3
@@ -14,11 +14,8 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.io.PrintWriter;
 import java.net.URI;
@@ -29,7 +26,6 @@ import java.net.http.HttpResponse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
 
-@SpringBootApplication
 public class SbTestsMain {
 
     public static void main(String[] args) {
@@ -51,15 +47,6 @@ public class SbTestsMain {
         System.out.printf("Tests found: %d, succeeded: %d, failed: %d%n",
                 summary.getTestsStartedCount(), summary.getTestsSucceededCount(), failed);
         System.exit(exitCode);
-    }
-
-    @RestController
-    static class ApiRestController {
-
-        @GetMapping("/")
-        String hello() {
-            return "Hello from Spring Boot on JBang!";
-        }
     }
 
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
