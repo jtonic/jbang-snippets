@@ -3,15 +3,22 @@
 
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
 
 import java.io.PrintWriter;
 
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
+
 public abstract class JBangTest {
 
-    protected abstract LauncherDiscoveryRequest discoveryRequest();
+    protected LauncherDiscoveryRequest discoveryRequest() {
+        return LauncherDiscoveryRequestBuilder.request()
+                .selectors(selectClass(getClass()))
+                .build();
+    }
 
     public static void run(Class<? extends JBangTest> testClass, String[] ignoredArgs) {
         JBangTest instance;
