@@ -1,8 +1,9 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 25
 //DEPS org.springframework.boot:spring-boot-starter-web:4.1.1
+//FILES application.properties
 
-package stonic.sb;
+package sb;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
