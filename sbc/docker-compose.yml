@@ -1,0 +1,15 @@
+services:
+  cassandra:
+    image: cassandra:latest
+    container_name: sbc-cassandra
+    ports:
+      - "9042:9042"
+    volumes:
+      - ./schema.cql:/docker-entrypoint-initdb.d/schema.cql
+      - ./init-cassandra.sh:/init-cassandra.sh
+    entrypoint: ["bash", "/init-cassandra.sh"]
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "SELECT now() from system.local"]
+      interval: 15s
+      timeout: 10s
+      retries: 20

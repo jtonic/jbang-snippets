@@ -1,0 +1,5 @@
+# HTTP Tests
+
+## Get OAuth2-client-config
+GET http://localhost:8080/oauth2-config
+

@@ -10,32 +10,41 @@ It is mainly to get conformable with jbang.
 2. jbang for [JUnit 5](JUnit5RunnerMain.java) 
 3. jbang for [SpringBoot 4.1 app](SbMain.java) 
 4. jbang for [SpringBoot 4.1 app](sb/SbAppMain.java) along with the [SpringBoot IT](sb/SbTestsMain.java)
+5. jbang for [SpringBoot 4.0, java 21 app with Cassandra](./sbc/SpringBootCassandraMain.java)
 
 ## How to run the jbang snippets
 
+- Run a simple java script
 ```shell
-## Run a simple java script
 jbang JsoncJacksonV3Main.java
 ````
 
+- Run SpringBootApplication app
 ```shell
-## Run SpringBootApplication app
 jbang sb/SbAppMain.java
 ```
 
+- Run SpringBootTest integration tests
 ```shell
-## Run SpringBootTest integration tests
 jbang sb/SbTests.java
 ```
 
+- Run a simple Groovy script
 ```shell
-## Run a simple Groovy script
 jbang SimpleReadFileMain.groovy
 ```
 
+- Run a Kotlin script with Arrow Effects (Raise) and Context Parameters
 ```shell
-## Run a Kotlin script with Arrow Effects (Raise) and Context Parameters
 jbang SimpleArrowMain.kt
+```
+
+- Run a SpringBoot 4.0 and Java 21 Cassandra Application
+
+```shell
+cd sbc
+docker compose up -d
+jbang SpringBootCassandraMain.java
 ```
 
 ## More snippets
