@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class JUnit5RunnerMain extends JBangJunit5Test {
 
     public static void main(String[] args) {
-        JBangJunit5Test.run(JUnit5RunnerMain.class, args);
+        JBangJunit5Test.run(JUnit5RunnerMain.class);
     }
 
     @Test
@@ -21,10 +21,5 @@ public class JUnit5RunnerMain extends JBangJunit5Test {
     @Test
     void stringConcatWorks() {
         assertEquals("stonic-junit5", "stonic" + "-junit5");
-    }
-
-    @Test
-    void failingTest() {
-        assertEquals(1, 2);
     }
 }

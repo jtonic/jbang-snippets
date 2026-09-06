@@ -23,7 +23,7 @@ public abstract class JBangJunit6Test {
                 .build();
     }
 
-    public static void run(Class<? extends JBangJunit6Test> testClass, String[] ignoredArgs) {
+    public static void run(Class<? extends JBangJunit6Test> testClass) {
         JBangJunit6Test instance;
         try {
             instance = testClass.getDeclaredConstructor().newInstance();

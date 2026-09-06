@@ -25,7 +25,7 @@ jbang sb/SbAppMain.java
 
 ```shell
 ## Run SpringBootTest integration tests
-jbang sb/SbTestsMain.java
+jbang sb/SbTests.java
 ```
 
 ```shell
