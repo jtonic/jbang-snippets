@@ -19,6 +19,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
 
 public class SbTestsMain extends JBangJunit6Test {
@@ -30,7 +31,8 @@ public class SbTestsMain extends JBangJunit6Test {
     @Override
     protected LauncherDiscoveryRequest discoveryRequest() {
         return LauncherDiscoveryRequestBuilder.request()
-                .selectors(selectPackage("stonic.sb"))
+                // .selectors(selectPackage("stonic.sb"))
+                .selectors(selectClass(EndpointTest.class))
                 .build();
     }
 
