@@ -49,7 +49,10 @@ public class SbTestsMain {
         System.exit(exitCode);
     }
 
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+    @SpringBootTest(
+            // classes = stonic.sb.SbAppMain.class,
+            webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    )
     static class EndpointTest {
 
         @LocalServerPort
