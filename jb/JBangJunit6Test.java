@@ -1,5 +1,7 @@
-//DEPS org.junit.jupiter:junit-jupiter:5.11.4
-//DEPS org.junit.platform:junit-platform-launcher:1.11.4
+//DEPS org.junit.jupiter:junit-jupiter:6.0.3
+//DEPS org.junit.platform:junit-platform-launcher:6.0.3
+
+package jb;
 
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
@@ -12,7 +14,8 @@ import java.io.PrintWriter;
 
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
-public abstract class JBangTest {
+@SuppressWarnings("DuplicatedCode")
+public abstract class JBangJunit6Test {
 
     protected LauncherDiscoveryRequest discoveryRequest() {
         return LauncherDiscoveryRequestBuilder.request()
@@ -20,8 +23,8 @@ public abstract class JBangTest {
                 .build();
     }
 
-    public static void run(Class<? extends JBangTest> testClass, String[] ignoredArgs) {
-        JBangTest instance;
+    public static void run(Class<? extends JBangJunit6Test> testClass, String[] ignoredArgs) {
+        JBangJunit6Test instance;
         try {
             instance = testClass.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
