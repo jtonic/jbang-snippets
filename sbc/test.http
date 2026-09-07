@@ -1,5 +1,20 @@
 # HTTP Tests
 
-## Get OAuth2-client-config
+### Get OAuth2-client-config
 GET http://localhost:8080/oauth2-config
 
+### Create OAuth2-client-config
+POST http://localhost:8080/oauth2-config
+Content-Type: application/json
+
+{
+  "oauth2": {
+    "clientId": "client-app-3",
+    "businessPurpose": "PID-01",
+    "responseMode": "direct_post",
+    "requestUriMethod": "post",
+    "redirectUri": "https://client3.example.com/redirect",
+    "verifierInfo": "verifier-3"
+  },
+  "version": "1.1"
+}
