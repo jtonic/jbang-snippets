@@ -7,7 +7,9 @@
 
 package sbc;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.boot.SpringApplication;
@@ -22,10 +24,13 @@ import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
 import org.springframework.data.cassandra.core.mapping.Table;
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.data.cassandra.repository.support.CassandraRepositoryFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @SpringBootApplication
 public class SpringBootCassandraMain {
@@ -107,6 +112,28 @@ public class SpringBootCassandraMain {
         public void setVerifierInfo(String verifierInfo) {
             this.verifierInfo = verifierInfo;
         }
+
+        OAuth2ClientConfig toDomain() {
+            OAuth2ClientConfig.OAuth2 oauth2 = new OAuth2ClientConfig.OAuth2(
+                    key.getClientId(),
+                    key.getBusinessPurpose(),
+                    responseMode != null ? OAuth2ClientConfig.ResponseMode.valueOf(responseMode) : null,
+                    requestUriMethod != null ? OAuth2ClientConfig.RequestUriMethod.valueOf(requestUriMethod) : null,
+                    redirectUri,
+                    verifierInfo);
+            return new OAuth2ClientConfig(oauth2, version);
+        }
+
+        static OAuth2ClientConfigEntity from(OAuth2ClientConfig config) {
+            OAuth2ClientConfigEntity entity = new OAuth2ClientConfigEntity();
+            entity.setKey(new OAuth2ClientConfigKey(config.oauth2().clientId(), config.oauth2().businessPurpose()));
+            entity.setVersion(config.version());
+            entity.setResponseMode(config.oauth2().responseMode() != null ? config.oauth2().responseMode().name() : null);
+            entity.setRequestUriMethod(config.oauth2().requestUriMethod() != null ? config.oauth2().requestUriMethod().name() : null);
+            entity.setRedirectUri(config.oauth2().redirectUri());
+            entity.setVerifierInfo(config.oauth2().verifierInfo());
+            return entity;
+        }
     }
 
     @PrimaryKeyClass
@@ -144,6 +171,20 @@ public class SpringBootCassandraMain {
     }
 
     public interface OAuth2ClientConfigRepository extends CassandraRepository<OAuth2ClientConfigEntity, OAuth2ClientConfigKey> {
+
+        default OAuth2ClientConfigEntity doSave(OAuth2ClientConfigEntity entity) {
+            try {
+                return save(entity);
+            } catch (RuntimeException e) {
+                throw new OAuth2ClientConfigPersistenceException(e.getMessage(), e);
+            }
+        }
+    }
+
+    public static class OAuth2ClientConfigPersistenceException extends RuntimeException {
+        OAuth2ClientConfigPersistenceException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 
     public record OAuth2ClientConfig(OAuth2 oauth2, String version) {
@@ -164,28 +205,6 @@ public class SpringBootCassandraMain {
             get,
             post
         }
-
-        OAuth2ClientConfigEntity toEntity() {
-            OAuth2ClientConfigEntity entity = new OAuth2ClientConfigEntity();
-            entity.setKey(new OAuth2ClientConfigKey(oauth2.clientId(), oauth2.businessPurpose()));
-            entity.setVersion(version);
-            entity.setResponseMode(oauth2.responseMode() != null ? oauth2.responseMode().name() : null);
-            entity.setRequestUriMethod(oauth2.requestUriMethod() != null ? oauth2.requestUriMethod().name() : null);
-            entity.setRedirectUri(oauth2.redirectUri());
-            entity.setVerifierInfo(oauth2.verifierInfo());
-            return entity;
-        }
-
-        static OAuth2ClientConfig from(OAuth2ClientConfigEntity entity) {
-            OAuth2 oauth2 = new OAuth2(
-                    entity.getKey().getClientId(),
-                    entity.getKey().getBusinessPurpose(),
-                    entity.getResponseMode() != null ? ResponseMode.valueOf(entity.getResponseMode()) : null,
-                    entity.getRequestUriMethod() != null ? RequestUriMethod.valueOf(entity.getRequestUriMethod()) : null,
-                    entity.getRedirectUri(),
-                    entity.getVerifierInfo());
-            return new OAuth2ClientConfig(oauth2, entity.getVersion());
-        }
     }
 
     @RestController
@@ -200,13 +219,26 @@ public class SpringBootCassandraMain {
         @GetMapping("/oauth2-config")
         List<OAuth2ClientConfig> getConfigs() {
             return repository.findAll().stream()
-                    .map(OAuth2ClientConfig::from)
+                    .map(OAuth2ClientConfigEntity::toDomain)
                     .collect(Collectors.toList());
         }
 
         @PostMapping("/oauth2-config")
         OAuth2ClientConfig createConfig(@RequestBody OAuth2ClientConfig config) {
-            return OAuth2ClientConfig.from(repository.save(config.toEntity()));
+            OAuth2ClientConfigEntity saved = repository.doSave(OAuth2ClientConfigEntity.from(config));
+            return saved.toDomain();
+        }
+    }
+
+    @RestControllerAdvice
+    static class OAuth2ClientConfigControllerAdvice {
+
+        @ExceptionHandler(OAuth2ClientConfigPersistenceException.class)
+        ResponseEntity<Map<String, String>> handle(OAuth2ClientConfigPersistenceException ex) {
+            Map<String, String> body = new LinkedHashMap<>();
+            body.put("error", "persistence");
+            body.put("message", ex.getMessage());
+            return ResponseEntity.internalServerError().body(body);
         }
     }
 }

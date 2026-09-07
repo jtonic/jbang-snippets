@@ -24,11 +24,11 @@ along with the companion SpringBootCassandraTCTest (Java file) for jbang
    to see if the data from cassandra are returned to the cURL invoker.
 3. [x] Next it is about adapting the C* keyspace table oauth2clientconfig and all that is related considering the following structure (as java class)
    that comes via a new endpoint (it is the DTO that maps to the domain data model), to persist to C* (via mapTo Cassandra @Table data entity java class).
-   ```java
-   public record OAuth2ClientConfig(  
+    ```java
+    public record OAuth2ClientConfig(  
         OAuth2 oauth2,  
         String version  
-   ) {
+    ) {
         public record OAuth2(  
                 String clientId,  
                 String businessPurpose,  
@@ -44,13 +44,26 @@ along with the companion SpringBootCassandraTCTest (Java file) for jbang
             get,  
             post  
         }  
-   }
-   ```
-   - [x] This requires a compound primary key with `client_id` as partition key and `business_purpose` as clustering column: `PRIMARY KEY ((client_id), business_purpose)`. Note naming convention: CQL columns use snake_case, Java fields use camelCase — the `@Column("snake_case")` annotation on the `@Table` entity handles the mapping (e.g. `client_id` ↔ `clientId`, `business_purpose` ↔ `businessPurpose`, `response_mode` ↔ `responseMode`, etc.),
-   - [x] This requires also a docker compose down with the options to delete the container and any volumes created,
-- [x] This requires updating the @Table Cassandra entity class to flatten the nested DTO fields into a single `OAuth2ClientConfigEntity` with `@Column` annotations mapping camelCase Java fields to snake_case CQL columns,
-- [x] This requires the update of the cql file to be used for the automatic execution when the cassandra new container is started via docker compose up command,
-- [x] This requires the adaptation of the map between the DTO and the @Table Cassandra data entity,
-- [x] Adapt the [test.http](sbc/test.http) to add a new http command for the insertion,
-- [x] This also requires the update of the check for correct implementation,
-- [x] Check again the current implementation with the new endpoint (insert a new raw in the oauth2clientconfig), cURL and jq
+    }
+    ```
+    - [x] This requires a compound primary key with `client_id` as partition key and `business_purpose` as clustering column: `PRIMARY KEY ((client_id), business_purpose)`. Note naming convention: CQL columns use snake_case, Java fields use camelCase — the `@Column("snake_case")` annotation on the `@Table` entity handles the mapping (e.g. `client_id` ↔ `clientId`, `business_purpose` ↔ `businessPurpose`, `response_mode` ↔ `responseMode`, etc.),
+    - [x] This requires also a docker compose down with the options to delete the container and any volumes created,
+    - [x] This requires updating the @Table Cassandra entity class to flatten the nested DTO fields into a single `OAuth2ClientConfigEntity` with `@Column` annotations mapping camelCase Java fields to snake_case CQL columns,
+    - [x] This requires the update of the cql file to be used for the automatic execution when the cassandra new container is started via docker compose up command,
+    - [x] This requires the adaptation of the map between the DTO and the @Table Cassandra data entity,
+    - [x] Adapt the [test.http](sbc/test.http) to add a new http command for the insertion,
+    - [x] This also requires the update of the check for correct implementation,
+    - [x] Check again the current implementation with the new endpoint (insert a new raw in the oauth2clientconfig), cURL and jq
+
+4. [x] Figure out the technical debt, accumulated so far. See below what I don't really like
+    - [x] No exception handling in the 
+    ```java
+        @PostMapping("/oauth2-config")
+        OAuth2ClientConfig createConfig(@RequestBody OAuth2ClientConfig config) {
+            return OAuth2ClientConfig.from(repository.save(config.toEntity()));
+        }
+    ```
+    Any exception in the save may lead to 500 Internal Server error in the HTTP response.
+    Is it possible to wrap the save method in the Spring Repository definition, and allow me to add a RuntimeException at the call side?
+    - [x] Related to the mapTo and from. They are in the domain model, and this is an API leakage from persistence. I would like the other way around. Entity to have methods to map to and from Domain model. In this particular case Domain model is in fact DTO, but let's keep this way as brevity.
+    - [x] Check the performed mutation activity related to above points to see if all is ok.The way it was performed for point 3.

@@ -10,7 +10,7 @@ Content-Type: application/json
 {
   "oauth2": {
     "clientId": "client-app-3",
-    "businessPurpose": "PID-01",
+    "businessPurpose": "PID-02",
     "responseMode": "direct_post",
     "requestUriMethod": "post",
     "redirectUri": "https://client3.example.com/redirect",
