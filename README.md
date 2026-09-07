@@ -51,6 +51,18 @@ jbang SpringBootCassandraMain.java
 
 See [TODO](./TODO.md)
 
+## HOWTOs
+
+- How to handle false positives in IDEA
+There are cases when even if the jbang (run from IDEA) succeeded, there are red false positives in the editor.
+For this case the following IDEA action is the saviour.
+
+![Sync JBang project in IDEA](doc/assets/sync_bang_project_in_IDEA.png)
+
+## Miscellaneous
+
+- The best support for JBang is in IntellJ Idea.
+
 ## References
 
 - [jbang directives](https://www.jbang.dev/documentation/jbang/latest/script-directives.html)
