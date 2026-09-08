@@ -74,6 +74,6 @@ along with the companion SpringBootCassandraTCTest (Java file) for jbang
     - [x] down the docker-compose with the removal of volumes and docker container,
     - [x] up the docker-compose 
     - [x] test the functionality, as you did before, using cURL and jq tools
-    - [ ] if all is fine use git add -A . to stage the changes, and ask me for review and then commit and push
+    - [x] if all is fine use git add -A . to stage the changes, and ask me for review and then commit and push
 
 
