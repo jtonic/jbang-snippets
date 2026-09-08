@@ -3,6 +3,9 @@
 ### Get OAuth2-client-config
 GET http://localhost:8080/oauth2-config
 
+### Get OAuth2-client-config by clientId + businessPurpose
+GET http://localhost:8080/oauth2-config?clientId=client-app-1&businessPurpose=Payment%20Processing
+
 ### Create OAuth2-client-config
 POST http://localhost:8080/oauth2-config
 Content-Type: application/json

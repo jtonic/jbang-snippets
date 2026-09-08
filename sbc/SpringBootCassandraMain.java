@@ -10,6 +10,7 @@ package sbc;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.boot.SpringApplication;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -172,6 +174,8 @@ public class SpringBootCassandraMain {
 
     public interface OAuth2ClientConfigRepository extends CassandraRepository<OAuth2ClientConfigEntity, OAuth2ClientConfigKey> {
 
+        Optional<OAuth2ClientConfigEntity> findByKeyClientIdAndKeyBusinessPurpose(String clientId, String businessPurpose);
+
         default OAuth2ClientConfigEntity doSave(OAuth2ClientConfigEntity entity) {
             try {
                 return save(entity);
@@ -221,6 +225,13 @@ public class SpringBootCassandraMain {
             return repository.findAll().stream()
                     .map(OAuth2ClientConfigEntity::toDomain)
                     .collect(Collectors.toList());
+        }
+
+        @GetMapping(value = "/oauth2-config", params = {"clientId", "businessPurpose"})
+        ResponseEntity<OAuth2ClientConfig> findConfig(@RequestParam String clientId, @RequestParam String businessPurpose) {
+            return repository.findByKeyClientIdAndKeyBusinessPurpose(clientId, businessPurpose)
+                    .map(entity -> ResponseEntity.ok(entity.toDomain()))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
         }
 
         @PostMapping("/oauth2-config")

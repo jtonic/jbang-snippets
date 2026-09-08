@@ -67,3 +67,13 @@ along with the companion SpringBootCassandraTCTest (Java file) for jbang
     Is it possible to wrap the save method in the Spring Repository definition, and allow me to add a RuntimeException at the call side?
     - [x] Related to the mapTo and from. They are in the domain model, and this is an API leakage from persistence. I would like the other way around. Entity to have methods to map to and from Domain model. In this particular case Domain model is in fact DTO, but let's keep this way as brevity.
     - [x] Check the performed mutation activity related to above points to see if all is ok.The way it was performed for point 3.
+5. [x] Additional functionality to query Cassandra table
+    - [x] Add a new endpoint to query the table based on client_id & business_purpose, as query params
+    - [x] Create this query in the existing Cassandra Repository, if possible using the Spring Data by name methods.
+    - [x] Update the [http](./sbc/test.http) to include the new endpoint
+    - [x] down the docker-compose with the removal of volumes and docker container,
+    - [x] up the docker-compose 
+    - [x] test the functionality, as you did before, using cURL and jq tools
+    - [ ] if all is fine use git add -A . to stage the changes, and ask me for review and then commit and push
+
+
