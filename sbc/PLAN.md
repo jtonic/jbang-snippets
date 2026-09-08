@@ -75,5 +75,11 @@ along with the companion SpringBootCassandraTCTest (Java file) for jbang
     - [x] up the docker-compose 
     - [x] test the functionality, as you did before, using cURL and jq tools
     - [x] if all is fine use git add -A . to stage the changes, and ask me for review and then commit and push
-
+6. [x] Time to have Spring Integration Tests for implementation of the point 5.
+    - [x] Use as example the Java files in the `sb` folder
+    - [x] Create integration tests to test exposed endpoints in `sbc` java file, with proper mocking of the Cassandra repository
+    - [x] down the docker-compose with the removal of volumes and docker container,
+    - [x] up the docker-compose
+    - [x] test the functionality, as you did before, using cURL and jq tools
+    - [ ] if all is fine use git add -A . to stage the changes, and ask me for review and then commit and push
 
