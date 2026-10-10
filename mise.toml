@@ -1,0 +1,7 @@
+[tools]
+java = "temurin-25"
+jbang = "0.141"
+groovy = "5.1.1"
+python = "3.14"
+pipx = "1.17"
+node = "26.11"
