@@ -6,7 +6,7 @@ wired with the Kotlin bean DSL and coroutine routers, showing how a web filter i
 1. [x] Create a Spring Boot 4 WebFlux application with coroutine routers and a logging web filter
     - [x] Use the Spring Boot 4.1.1 BOM, `spring-boot-starter-webflux` and `kotlinx-coroutines-reactor` as dependencies
     - [x] Keep annotations at the minimum: only `@SpringBootApplication` and `@Import(Beans::class)`,
-       everything else is registered in a `BeanRegistrarDsl` (`Beans`)
+      everything else is registered in a `BeanRegistrarDsl` (`Beans`)
     - [x] Create `UserService` and `EmployeeService` beans holding the sample data
     - [x] Create one `coRouter` bean per area:
       a) `userRouter` with `GET /users` and `GET /users/{id}`
