@@ -1,0 +1,15 @@
+### GET users
+
+GET http://localhost:8080/users
+
+### GET employees
+
+GET http://localhost:8080/employees
+
+### GET user by id
+
+GET http://localhost:8080/users/1
+
+### GET employee by id
+
+GET http://localhost:8080/employees/1
