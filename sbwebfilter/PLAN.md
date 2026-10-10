@@ -20,3 +20,19 @@ wired with the Kotlin bean DSL and coroutine routers, showing how a web filter i
       the http file renamed, and `-jvm-target=25` checked to be applied (class-file version 69)
    Validated by starting the application with `jbang` and using `curl`: the endpoints of the `userRouter` are logged,
    while the endpoints of the `employeeRouter` and the unrouted paths are not.
+2. [x] Add a JWT library to parse a signed JWT
+    - [x] Add the JWT library (Nimbus JOSE + JWT) as a jbang dependency
+    - [x] Parse a signed JWT without checking its signature: only read its content (`JwtReader`)
+    - [x] Expose the body of the JWT, including the claims and Co (header, subject, issuer, expiration, custom claims)
+      as an `AccessToken`
+3. [x] Check in the endpoints of the `userRouter` if the `X-KKK-AccessToken` header is present
+    - [x] Create `AccessTokenFilter` as a `CoWebFilter` bean applied on the endpoints of the `userRouter`,
+      sharing the endpoints pick-up with `LoggingFilter` (`RouterEndpoints`)
+    - [x] The header carries the JWT: it is read with `JwtReader`, logged and stored as an exchange attribute
+    - [x] Return 401 when the header is missing or does not carry a readable JWT
+    - [x] Expose the `AccessToken` to the handlers of the endpoints, keeping the `coRouter` (no annotated controller,
+      so no `@AccessToken` method parameter): a `ServerRequest.accessToken()` extension, used by the handlers of
+      the `userRouter` to log who asked
+   Validated by starting the application with `jbang` and using `curl`: the endpoints of the `userRouter` answer 401
+   without the header or with a garbage token and work with a JWT, while the endpoints of the `employeeRouter` need no header.
+4. More to come

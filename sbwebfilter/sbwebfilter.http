@@ -1,15 +1,55 @@
+@baseUrl = http://localhost:8080
+# sample JWT (sub=user1, iss=kkk, roles=[admin]) with a fake signature: the application does not check it
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMSIsImlzcyI6ImtrayIsImV4cCI6MTkwMDAwMDAwMCwicm9sZXMiOlsiYWRtaW4iXX0.bm90LWEtcmVhbC1zaWduYXR1cmU
+
 ### GET users
 
-GET http://localhost:8080/users
+GET {{baseUrl}}/users
+X-KKK-AccessToken: {{accessToken}}
 
-### GET employees
-
-GET http://localhost:8080/employees
+> {%
+    client.test("status is 200", function () {
+        client.assert(response.status === 200, "expected 200 but got " + response.status);
+    });
+%}
 
 ### GET user by id
 
-GET http://localhost:8080/users/1
+GET {{baseUrl}}/users/1
+X-KKK-AccessToken: {{accessToken}}
+
+> {%
+    client.test("status is 200", function () {
+        client.assert(response.status === 200, "expected 200 but got " + response.status);
+    });
+%}
+
+### GET users without the access token (401)
+
+GET {{baseUrl}}/users
+
+> {%
+    client.test("status is 401", function () {
+        client.assert(response.status === 401, "expected 401 but got " + response.status);
+    });
+%}
+
+### GET employees
+
+GET {{baseUrl}}/employees
+
+> {%
+    client.test("status is 200", function () {
+        client.assert(response.status === 200, "expected 200 but got " + response.status);
+    });
+%}
 
 ### GET employee by id
 
-GET http://localhost:8080/employees/1
+GET {{baseUrl}}/employees/1
+
+> {%
+    client.test("status is 200", function () {
+        client.assert(response.status === 200, "expected 200 but got " + response.status);
+    });
+%}

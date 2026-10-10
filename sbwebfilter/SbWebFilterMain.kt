@@ -5,16 +5,19 @@
 //DEPS org.springframework.boot:spring-boot-dependencies:4.1.1@pom
 //DEPS org.springframework.boot:spring-boot-starter-webflux
 //DEPS org.jetbrains.kotlinx:kotlinx-coroutines-reactor
+//DEPS com.nimbusds:nimbus-jose-jwt:10.5
 //FILES application.properties
 
 package sbwebfilter
 
+import com.nimbusds.jwt.SignedJWT
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanRegistrarDsl
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Import
+import org.springframework.http.HttpStatus
 import org.springframework.http.codec.HttpMessageReader
 import org.springframework.http.codec.ServerCodecConfigurer
 import org.springframework.web.reactive.function.server.RouterFunction
@@ -26,8 +29,13 @@ import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.server.CoWebFilter
 import org.springframework.web.server.CoWebFilterChain
 import org.springframework.web.server.ServerWebExchange
+import java.text.ParseException
+import java.time.Instant
 
-private val log = LoggerFactory.getLogger("sbwebfilter.LoggingFilter")
+const val ACCESS_TOKEN_HEADER = "X-KKK-AccessToken"
+const val ACCESS_TOKEN_ATTRIBUTE = "accessToken"
+
+private val log = LoggerFactory.getLogger("sbwebfilter.UserRouter")
 
 @SpringBootApplication
 @Import(Beans::class)
@@ -54,8 +62,12 @@ class Beans : BeanRegistrarDsl({
         val userService = bean<UserService>()
 
         coRouter {
-            GET("/users") { ok().bodyValueAndAwait(userService.getUsers()) }
+            GET("/users") { request ->
+                log.info("{} asked for the users", request.accessToken().subject)
+                ok().bodyValueAndAwait(userService.getUsers())
+            }
             GET("/users/{id}") { request ->
+                log.info("{} asked for the user {}", request.accessToken().subject, request.pathVariable("id"))
                 userService.getUser(request.pathVariable("id"))
                     ?.let { ok().bodyValueAndAwait(it) }
                     ?: notFound().buildAndAwait()
@@ -63,24 +75,46 @@ class Beans : BeanRegistrarDsl({
         }
     }
 
-    registerBean {
-        LoggingFilter(
+    registerBean<JwtReader>()
+
+    registerBean("userEndpoints") {
+        RouterEndpoints(
             router = bean<RouterFunction<ServerResponse>>("userRouter"),
             messageReaders = bean<ServerCodecConfigurer>().readers,
         )
     }
+
+    // registered before AccessTokenFilter, so the 401 responses are logged too
+    registerBean { LoggingFilter(endpoints = bean<RouterEndpoints>("userEndpoints")) }
+
+    registerBean {
+        AccessTokenFilter(
+            endpoints = bean<RouterEndpoints>("userEndpoints"),
+            jwtReader = bean<JwtReader>(),
+        )
+    }
 })
 
-// Applies to every endpoint declared by the given router; other paths pass through unlogged.
-class LoggingFilter(
+// The endpoints declared by the given router, picked up from the router itself (no hard-coded path patterns).
+class RouterEndpoints(
     private val router: RouterFunction<ServerResponse>,
     private val messageReaders: List<HttpMessageReader<*>>,
-) : CoWebFilter() {
+) {
 
-    override suspend fun filter(exchange: ServerWebExchange, chain: CoWebFilterChain) {
+    suspend fun matches(exchange: ServerWebExchange): Boolean {
         // match on a copy: routing writes path attributes that must not leak into the real exchange
         val probe = ServerRequest.from(ServerRequest.create(exchange, messageReaders)).build()
-        val routed = router.route(probe).awaitSingleOrNull() != null
+        return router.route(probe).awaitSingleOrNull() != null
+    }
+}
+
+// Applies to the given endpoints; other paths pass through unlogged.
+class LoggingFilter(private val endpoints: RouterEndpoints) : CoWebFilter() {
+
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    override suspend fun filter(exchange: ServerWebExchange, chain: CoWebFilterChain) {
+        val routed = endpoints.matches(exchange)
 
         chain.filter(exchange)
 
@@ -95,6 +129,65 @@ class LoggingFilter(
         }
     }
 }
+
+// Applies to the given endpoints: answers 401 unless the access token header carries a readable JWT.
+class AccessTokenFilter(
+    private val endpoints: RouterEndpoints,
+    private val jwtReader: JwtReader,
+) : CoWebFilter() {
+
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    override suspend fun filter(exchange: ServerWebExchange, chain: CoWebFilterChain) {
+        if (!endpoints.matches(exchange)) {
+            return chain.filter(exchange)
+        }
+
+        val accessToken = exchange.request.headers.getFirst(ACCESS_TOKEN_HEADER)?.let(jwtReader::read)
+        if (accessToken == null) {
+            exchange.response.statusCode = HttpStatus.UNAUTHORIZED
+            exchange.response.setComplete().awaitSingleOrNull()
+            return
+        }
+
+        log.info("access token: {}", accessToken)
+        exchange.attributes[ACCESS_TOKEN_ATTRIBUTE] = accessToken
+        chain.filter(exchange)
+    }
+}
+
+// The access token read by AccessTokenFilter, for the handlers of the endpoints the filter is applied on.
+fun ServerRequest.accessToken(): AccessToken =
+    attributes()[ACCESS_TOKEN_ATTRIBUTE] as? AccessToken
+        ?: error("No access token: is AccessTokenFilter applied on ${method()} ${path()}?")
+
+class JwtReader {
+
+    // reads the content of a signed JWT only: the signature is not checked
+    fun read(token: String): AccessToken? =
+        try {
+            val jwt = SignedJWT.parse(token)
+            val claims = jwt.jwtClaimsSet
+
+            AccessToken(
+                header = jwt.header.toJSONObject(),
+                subject = claims.subject,
+                issuer = claims.issuer,
+                expiration = claims.expirationTime?.toInstant(),
+                claims = claims.claims,
+            )
+        } catch (e: ParseException) {
+            null
+        }
+}
+
+data class AccessToken(
+    val header: Map<String, Any?>,
+    val subject: String?,
+    val issuer: String?,
+    val expiration: Instant?,
+    val claims: Map<String, Any?>,
+)
 
 fun main(args: Array<String>) {
     runApplication<SbWebFilterMain>(*args)
