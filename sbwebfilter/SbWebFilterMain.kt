@@ -77,17 +77,24 @@ class Beans : BeanRegistrarDsl({
 
     registerBean<JwtReader>()
 
-    registerBean("userEndpoints") {
+    registerBean("allEndpoints") {
         RouterEndpoints(
-            router = bean<RouterFunction<ServerResponse>>("userRouter"),
+            routers = beanProvider<RouterFunction<ServerResponse>>().toList(),
             messageReaders = bean<ServerCodecConfigurer>().readers,
         )
     }
 
-    // registered before AccessTokenFilter, so the 401 responses are logged too
-    registerBean { LoggingFilter(endpoints = bean<RouterEndpoints>("userEndpoints")) }
+    registerBean("userEndpoints") {
+        RouterEndpoints(
+            routers = listOf(bean<RouterFunction<ServerResponse>>("userRouter")),
+            messageReaders = bean<ServerCodecConfigurer>().readers,
+        )
+    }
 
-    registerBean {
+    // lower order runs first: LoggingFilter wraps AccessTokenFilter, so the 401 responses are logged too
+    registerBean(order = 1) { LoggingFilter(endpoints = bean<RouterEndpoints>("allEndpoints")) }
+
+    registerBean(order = 2) {
         AccessTokenFilter(
             endpoints = bean<RouterEndpoints>("userEndpoints"),
             jwtReader = bean<JwtReader>(),
@@ -95,17 +102,18 @@ class Beans : BeanRegistrarDsl({
     }
 })
 
-// The endpoints declared by the given router, picked up from the router itself (no hard-coded path patterns).
+// The endpoints declared by the given routers, picked up from the routers themselves (no hard-coded path patterns).
 class RouterEndpoints(
-    private val router: RouterFunction<ServerResponse>,
+    private val routers: List<RouterFunction<ServerResponse>>,
     private val messageReaders: List<HttpMessageReader<*>>,
 ) {
 
-    suspend fun matches(exchange: ServerWebExchange): Boolean {
-        // match on a copy: routing writes path attributes that must not leak into the real exchange
-        val probe = ServerRequest.from(ServerRequest.create(exchange, messageReaders)).build()
-        return router.route(probe).awaitSingleOrNull() != null
-    }
+    suspend fun matches(exchange: ServerWebExchange): Boolean =
+        routers.any { router ->
+            // match on a copy: routing writes path attributes that must not leak into the real exchange
+            val probe = ServerRequest.from(ServerRequest.create(exchange, messageReaders)).build()
+            router.route(probe).awaitSingleOrNull() != null
+        }
 }
 
 // Applies to the given endpoints; other paths pass through unlogged.

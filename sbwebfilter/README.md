@@ -1,8 +1,8 @@
 # sbwebfilter
 
 A single-file Spring Boot 4 WebFlux application for [JBang](https://www.jbang.dev), written in Kotlin.
-It shows how to apply web filters (request logging and an access token check) to the endpoints of one router,
-with the beans wired by the Kotlin bean DSL instead of annotations.
+It shows how to apply web filters to the endpoints of the routers (request logging on all of them, an access token
+check on one), with the beans wired by the Kotlin bean DSL instead of annotations.
 
 ## Quick guide
 
@@ -82,9 +82,12 @@ the libraries are in the `//KOTLIN` and `//DEPS` lines at the top of [SbWebFilte
 - **Bean DSL instead of annotations:** the only annotations are `@SpringBootApplication` and `@Import(Beans::class)`;
   every bean is registered in `Beans`, a `BeanRegistrarDsl`.
 - **One `coRouter` per area:** `userRouter` and `employeeRouter` are separate router beans with suspending handlers.
-- **Filters scoped to a router, without the `filter { }` DSL:** `LoggingFilter` and `AccessTokenFilter` are `CoWebFilter`
-  beans. They ask `RouterEndpoints` whether the `userRouter` would handle the request, so a route added to that router
-  is covered without touching the filters, and no path pattern is hard-coded.
+- **Filters scoped to routers, without the `filter { }` DSL:** `LoggingFilter` and `AccessTokenFilter` are `CoWebFilter`
+  beans. Each asks a `RouterEndpoints` bean whether its routers would handle the request: all the routers for the
+  logging, only the `userRouter` for the access token. A new route or router is covered without touching the filters,
+  and no path pattern is hard-coded.
+- **Explicit filter order:** set with `registerBean(order = ...)`; the logging runs first, so it wraps the access
+  token check and logs the 401 responses too.
 - **Access token:** `AccessTokenFilter` reads the JWT from the `X-KKK-AccessToken` header with `JwtReader` and answers
   401 when it is missing or unreadable.
 - **Token in the handlers:** a handler gets the parsed token with `request.accessToken()`, the functional-router

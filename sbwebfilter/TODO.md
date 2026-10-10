@@ -35,4 +35,11 @@ wired with the Kotlin bean DSL and coroutine routers, showing how a web filter i
       the `userRouter` to log who asked
    Validated by starting the application with `jbang` and using `curl`: the endpoints of the `userRouter` answer 401
    without the header or with a garbage token and work with a JWT, while the endpoints of the `employeeRouter` need no header.
-4. More to come
+4. [x] Apply `LoggingFilter` on all the endpoints of all the routers
+    - [x] `RouterEndpoints` takes a list of routers: `allEndpoints` (every router bean) for `LoggingFilter`,
+      `userEndpoints` (the `userRouter` only) for `AccessTokenFilter`
+    - [x] Make the order of the filters explicit in the DSL (`registerBean(order = ...)`): `LoggingFilter` first,
+      so the 401 responses are logged too
+   Validated by starting the application with `jbang` and using `curl`: the endpoints of both routers are logged,
+   the unrouted paths are not, and only the endpoints of the `userRouter` need the access token.
+5. More to come
