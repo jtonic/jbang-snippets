@@ -1,0 +1,4 @@
+# HTTP Tests
+
+### Get OAuth2-client-config through the client (needs the sbc application running on port 8080)
+GET http://localhost:8081/client/oauth2-config
