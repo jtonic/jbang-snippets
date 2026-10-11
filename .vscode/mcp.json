@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "jbang-snippets-metals": {
+      "url": "http://localhost:53029/mcp",
+      "type": "http"
+    }
+  }
+}

@@ -3,6 +3,9 @@
 *.iml
 out/
 
+## Scala ##
+.metals/
+
 ## Miscs
 *.bak
 !mise.toml.bak
