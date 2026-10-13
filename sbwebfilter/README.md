@@ -102,4 +102,4 @@ unchanged, and that the application is reachable only through that component. Ex
 ## More
 
 - [TODO.md](TODO.md): the steps done so far and the upcoming ones
-- [CONTRIBUTING.md](CONTRIBUTING.md): the git flow for changes
+- [CONTRIBUTING.md](../CONTRIBUTING.md): the git flow for changes
