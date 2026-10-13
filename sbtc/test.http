@@ -2,3 +2,20 @@
 
 ### Get OAuth2-client-config through the client (needs the sbc application running on port 8080)
 GET http://localhost:8081/client/oauth2-config
+
+### Get all users (needs the Cassandra of this folder: docker compose up -d)
+GET http://localhost:8081/users
+
+### Get a user by ssn
+GET http://localhost:8081/users/111-11-1111
+
+### Add a user
+POST http://localhost:8081/users
+Content-Type: application/json
+
+{
+  "ssn": "333-33-3333",
+  "firstName": "Grace",
+  "lastName": "Hopper",
+  "email": "grace.hopper@example.com"
+}
