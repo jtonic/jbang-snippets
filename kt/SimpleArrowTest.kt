@@ -5,23 +5,19 @@
 
 //DEPS org.jetbrains.kotlin:kotlin-test-junit5:2.4.21
 //DEPS org.junit.jupiter:junit-jupiter-engine:5.10.1
-//DEPS org.junit.platform:junit-platform-console:1.8.2
 //DEPS io.arrow-kt:arrow-functions:2.2.1
+//SOURCES jb/JBangJunit5Test.kt
 
 
 import arrow.core.andThen
 import arrow.core.partially1
 import arrow.core.partially2
+import kt.jb.JBangJunit5Test
 import org.junit.jupiter.api.Test
-import org.junit.platform.console.options.CommandLineOptions
-import org.junit.platform.console.tasks.ConsoleTestExecutor
-
-import java.io.PrintWriter
-import kotlin.io.path.Path
 
 import kotlin.test.assertEquals
 
-class SimpleArrowTest {
+class SimpleArrowTest : JBangJunit5Test() {
 
     @Test
     fun `andThen and partially`() {
@@ -50,10 +46,4 @@ class SimpleArrowTest {
     }
 }
 
-fun main() {
-    val options = CommandLineOptions().apply {
-        selectedClasses = listOf(SimpleArrowTest::class.java.name)
-        setReportsDir(Path(System.getProperty("user.dir")))
-    }
-    ConsoleTestExecutor(options).execute(PrintWriter(System.out))
-}
+fun main() = JBangJunit5Test.run(SimpleArrowTest::class)
