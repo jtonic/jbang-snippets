@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 
 //JAVA 21+
-//COMPILE_OPTIONS -Xcontext-parameters
-//KOTLIN 2.4.10
+//KOTLIN 2.4.21
 
 //DEPS io.arrow-kt:arrow-core:2.2.3
+//DEPS io.arrow-kt:arrow-functions:2.2.3
 
 @file:Suppress("KotlinPrintToLogpoint")
 

@@ -9,3 +9,7 @@ out/
 ## Miscs
 *.bak
 !mise.toml.bak
+
+## junit
+TEST-junit-jupiter.xml
+.mcp.json
